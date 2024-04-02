@@ -51,7 +51,12 @@ export default function Login() {
           loading
         </button>
       )}
-      {error && <div className="error">{error}</div>}
+      {error && (
+        <div className="error">
+          {/* {error} */}
+          Invalid Credentials
+        </div>
+      )}
     </form>
   )
 }
