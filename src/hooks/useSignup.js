@@ -5,6 +5,7 @@ import {
   projectFirestore,
 } from "../firebase/config"
 import { useAuthContext } from "./useAuthContext"
+import defaultImg from "../assets/default.jpeg"
 
 export const useSignup = () => {
   const [isCancelled, setIsCancelled] = useState(false)
@@ -27,6 +28,22 @@ export const useSignup = () => {
         throw new Error("Could not complete signup")
       }
 
+      // //upload user thumbnail
+      // const uploadPath = `thumbnails/${res.user.uid}/${thumbnail.name}`
+      // const img = await projectStorage.ref(uploadPath).put(thumbnail)
+      // const imgUrl = await img.ref.getDownloadURL()
+
+      // let imgUrl = null
+      // if (thumbnail) {
+      //   const uploadPath = `thumbnails/${res.user.uid}/${thumbnail.name}`
+      //   const img = await projectStorage.ref(uploadPath).put(thumbnail)
+      //   imgUrl = await img.ref.getDownloadURL()
+      // } else {
+      //   // Use default profile picture URL if thumbnail is not provided
+      //   imgUrl =
+      //     "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQvzXfX9CLB37i-Ko8-cA9rl1l2oPF6kIOueuaWmibzhyrx-tnn"
+      // }
+
       let imgUrl = null
       if (thumbnail) {
         const uploadPath = `thumbnails/${res.user.uid}/${thumbnail.name}`
@@ -34,8 +51,11 @@ export const useSignup = () => {
         imgUrl = await img.ref.getDownloadURL()
       } else {
         // Use default profile picture URL if thumbnail is not provided
-        imgUrl =
-          "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQvzXfX9CLB37i-Ko8-cA9rl1l2oPF6kIOueuaWmibzhyrx-tnn"
+        const defaultUploadPath = `thumbnails/${res.user.uid}/default.jpeg`
+        await projectStorage
+          .ref(defaultUploadPath)
+          .putString(defaultImg, "data_url")
+        imgUrl = await projectStorage.ref(defaultUploadPath).getDownloadURL()
       }
 
       // add display AND PHOTO_URL name to user
@@ -45,7 +65,7 @@ export const useSignup = () => {
       await projectFirestore.collection("users").doc(res.user.uid).set({
         online: true,
         displayName,
-        photoURL: "",
+        photoURL: imgUrl,
       })
 
       // dispatch login action

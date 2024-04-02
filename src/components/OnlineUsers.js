@@ -1,5 +1,4 @@
 import { useCollection } from "../hooks/useCollection"
-import defaultImg from "../assets/default.jpeg"
 
 // components
 import Avatar from "./Avatar"
@@ -20,7 +19,7 @@ export default function OnlineUsers() {
           <div key={user.id} className="user-list-item">
             {user.online && <span className="online-user"></span>}
             <span>{user.displayName}</span>
-            <Avatar src={user.photoURL ? user.photoURL : defaultImg} />
+            <Avatar src={user.photoURL} />
           </div>
         ))}
     </div>
