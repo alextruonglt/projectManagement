@@ -1,6 +1,10 @@
-import { useState, useEffect } from 'react'
-import { projectAuth, projectStorage, projectFirestore } from '../firebase/config'
-import { useAuthContext } from './useAuthContext'
+import { useState, useEffect } from "react"
+import {
+  projectAuth,
+  projectStorage,
+  projectFirestore,
+} from "../firebase/config"
+import { useAuthContext } from "./useAuthContext"
 
 export const useSignup = () => {
   const [isCancelled, setIsCancelled] = useState(false)
@@ -11,39 +15,52 @@ export const useSignup = () => {
   const signup = async (email, password, displayName, thumbnail) => {
     setError(null)
     setIsPending(true)
-  
+
     try {
       // signup
-      const res = await projectAuth.createUserWithEmailAndPassword(email, password)
+      const res = await projectAuth.createUserWithEmailAndPassword(
+        email,
+        password
+      )
 
       if (!res) {
-        throw new Error('Could not complete signup')
+        throw new Error("Could not complete signup")
       }
 
-      // upload user thumbnail
-      const uploadPath = `thumbnails/${res.user.uid}/${thumbnail.name}`
-      const img = await projectStorage.ref(uploadPath).put(thumbnail)
-      const imgUrl = await img.ref.getDownloadURL()
+      // //upload user thumbnail
+      // const uploadPath = `thumbnails/${res.user.uid}/${thumbnail.name}`
+      // const img = await projectStorage.ref(uploadPath).put(thumbnail)
+      // const imgUrl = await img.ref.getDownloadURL()
+
+      let imgUrl = null
+      if (thumbnail) {
+        const uploadPath = `thumbnails/${res.user.uid}/${thumbnail.name}`
+        const img = await projectStorage.ref(uploadPath).put(thumbnail)
+        imgUrl = await img.ref.getDownloadURL()
+      } else {
+        // Use default profile picture URL if thumbnail is not provided
+        imgUrl =
+          "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQvzXfX9CLB37i-Ko8-cA9rl1l2oPF6kIOueuaWmibzhyrx-tnn"
+      }
 
       // add display AND PHOTO_URL name to user
       await res.user.updateProfile({ displayName, photoURL: imgUrl })
 
       // create a user document
-      await projectFirestore.collection('users').doc(res.user.uid).set({ 
+      await projectFirestore.collection("users").doc(res.user.uid).set({
         online: true,
         displayName,
-        photoURL: imgUrl,
+        photoURL: "",
       })
 
       // dispatch login action
-      dispatch({ type: 'LOGIN', payload: res.user })
+      dispatch({ type: "LOGIN", payload: res.user })
 
       if (!isCancelled) {
         setIsPending(false)
         setError(null)
       }
-    } 
-    catch(err) {
+    } catch (err) {
       if (!isCancelled) {
         setError(err.message)
         setIsPending(false)

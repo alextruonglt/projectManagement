@@ -1,45 +1,49 @@
-import { useCollection } from '../../hooks/useCollection'
-import { useState } from 'react'
-import { useAuthContext } from '../../hooks/useAuthContext'
+import { useCollection } from "../../hooks/useCollection"
+import { useState } from "react"
+import { useAuthContext } from "../../hooks/useAuthContext"
 
 // components
-import ProjectList from '../../components/ProjectList'
-import ProjectFilter from './ProjectFilter'
+import ProjectList from "../../components/ProjectList"
+import ProjectFilter from "./ProjectFilter"
 
 // styles
-import './Dashboard.css'
+import "./Dashboard.css"
 
 export default function Dashboard() {
   const { user } = useAuthContext()
-  const { documents, error } = useCollection('projects')
-  const [filter, setFilter] = useState('all')
+  const { documents, error } = useCollection("projects")
+  const [filter, setFilter] = useState("all")
 
   const changeFilter = (newFilter) => {
     setFilter(newFilter)
   }
-  
-  const projects = documents ? documents.filter(document => {
-    switch(filter) {
-      case 'all':
-        return true
-      case 'mine':
-        let assignedToMe = false
-        document.assignedUsersList.forEach(u => {
-          if(u.id === user.uid) {
-            assignedToMe = true
-          }
-        })
-        return assignedToMe
-      case 'development':
-      case 'design':
-      case 'sales':
-      case 'marketing':
-        console.log(document.category, filter)
-        return document.category === filter
-      default:
-        return true
-    }
-  }) : null
+
+  const projects = documents
+    ? documents.filter((document) => {
+        switch (filter) {
+          case "all":
+            return true
+          case "mine":
+            let assignedToMe = false
+            document.assignedUsersList.forEach((u) => {
+              if (u.id === user.uid) {
+                assignedToMe = true
+              }
+            })
+            return assignedToMe
+          case "development":
+          case "design":
+          case "sales":
+          case "marketing":
+          case "finance":
+          case "hr":
+            console.log(document.category, filter)
+            return document.category === filter
+          default:
+            return true
+        }
+      })
+    : null
 
   return (
     <div>
